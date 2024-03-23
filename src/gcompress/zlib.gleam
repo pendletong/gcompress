@@ -1,17 +1,11 @@
 import gleam/bit_array
 import gleam/list
-import gleam/result
-import gleam/io
 
 type ZStream
 
 type InflateState {
   Continue
   Finished
-}
-
-type DeflateEnd {
-  Finish
 }
 
 @external(erlang, "zlib", "open")
@@ -126,18 +120,4 @@ pub fn finish_deflate(def_data: Deflate) -> Result(BitArray, CompressionError) {
   zclose(new_def_data.stream)
 
   Ok(bit_array.concat(list.reverse(new_def_data.chunks)))
-}
-
-pub fn main() {
-  let z =
-    start_deflate()
-    |> set_compression(BestCompression)
-
-  let ba =
-    result.try(
-      result.try(z, fn(d) { deflate(d, <<"This is a test":utf8>>) }),
-      fn(d) { finish_deflate(d) },
-    )
-
-  io.debug(ba)
 }
